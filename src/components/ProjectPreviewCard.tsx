@@ -10,6 +10,7 @@ interface Project {
   description: string;
   imageUrl: string;
   slug: string;
+  category?: string;
 }
 
 interface ProjectPreviewCardProps {
@@ -18,9 +19,9 @@ interface ProjectPreviewCardProps {
 
 const ProjectPreviewCard = ({ project }: ProjectPreviewCardProps) => {
   return (
-    <Card className="overflow-hidden h-full flex flex-col transition-all duration-300 hover:shadow-lg border border-border/50 hover:border-primary/20">
+    <Card className="overflow-hidden h-full flex flex-col transition-all duration-300 hover:shadow-lg border border-border/50 hover:border-primary/20 hover:-translate-y-1">
       {/* Project Image */}
-      <div className="h-48 overflow-hidden">
+      <div className="h-52 overflow-hidden">
         <img 
           src={project.imageUrl} 
           alt={project.title}
@@ -30,6 +31,11 @@ const ProjectPreviewCard = ({ project }: ProjectPreviewCardProps) => {
       
       {/* Project Content */}
       <CardContent className="flex-grow p-6">
+        {project.category && (
+          <span className="inline-block bg-primary/10 text-primary text-xs font-semibold px-2 py-1 rounded-full mb-3">
+            {project.category}
+          </span>
+        )}
         <h3 className="text-xl font-semibold mb-2">{project.title}</h3>
         <p className="text-muted-foreground">{project.description}</p>
       </CardContent>
