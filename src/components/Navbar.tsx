@@ -38,10 +38,21 @@ const Navbar = () => {
     >
       <div className="container mx-auto px-4 sm:px-6 md:px-8">
         <nav className="flex items-center justify-between">
-          {/* Logo */}
+          {/* Logo and Site Name */}
           <div className="flex items-center">
-            <Link to="/" className="text-xl md:text-2xl font-bold text-factory-700 hover:text-factory-600 transition-colors">
-              theAIfactory
+            <Link 
+              to="/" 
+              className="flex items-center group hover:scale-105 transition-transform duration-200" 
+              aria-label="theAIfactory Home"
+            >
+              <img 
+                src="/logo.svg" 
+                alt="theAIfactory Logo" 
+                className="h-8 w-auto dark:invert mr-2"
+              />
+              <span className="hidden sm:inline text-xl md:text-2xl font-bold text-factory-700 hover:text-factory-600 transition-colors">
+                theAIfactory
+              </span>
             </Link>
           </div>
 
