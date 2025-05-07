@@ -29,7 +29,7 @@ const Navbar = () => {
     <header 
       className={clsx(
         'w-full py-4 z-50 bg-background transition-all duration-200',
-        isSticky && 'sticky top-0 shadow-md'
+        isSticky && 'sticky top-0 shadow-sm'
       )}
     >
       <div className="container mx-auto px-4 sm:px-6 md:px-8">
@@ -46,24 +46,24 @@ const Navbar = () => {
                 alt="theAIfactory Logo" 
                 className="h-8 w-auto dark:invert mr-2"
               />
-              <span className="hidden sm:inline text-xl md:text-2xl font-bold text-foreground transition-colors">
+              <span className="hidden sm:inline text-xl md:text-2xl font-medium text-foreground transition-colors">
                 theAIfactory
               </span>
             </Link>
           </div>
 
           {/* Desktop Navigation Links */}
-          <div className="hidden md:flex items-center space-x-6">
+          <div className="hidden md:flex items-center space-x-8">
             <Link 
               to="/" 
               className={clsx(
                 "flex items-center text-sm font-medium transition-colors",
                 isLinkActive('/') 
-                  ? "text-primary font-semibold border-b-2 border-primary pb-1" 
-                  : "text-muted-foreground hover:text-primary"
+                  ? "text-outskill-600 font-medium" 
+                  : "text-muted-foreground hover:text-outskill-500"
               )}
             >
-              <Home size={18} className="mr-1" />
+              <Home size={18} className="mr-1.5" />
               Home
             </Link>
             <Link 
@@ -71,11 +71,11 @@ const Navbar = () => {
               className={clsx(
                 "flex items-center text-sm font-medium transition-colors",
                 isLinkActive('/projects') 
-                  ? "text-primary font-semibold border-b-2 border-primary pb-1" 
-                  : "text-muted-foreground hover:text-primary"
+                  ? "text-outskill-600 font-medium" 
+                  : "text-muted-foreground hover:text-outskill-500"
               )}
             >
-              <FolderCode size={18} className="mr-1" />
+              <FolderCode size={18} className="mr-1.5" />
               Projects
             </Link>
             <Link 
@@ -83,34 +83,46 @@ const Navbar = () => {
               className={clsx(
                 "flex items-center text-sm font-medium transition-colors",
                 isLinkActive('/profile') 
-                  ? "text-primary font-semibold border-b-2 border-primary pb-1" 
-                  : "text-muted-foreground hover:text-primary"
+                  ? "text-outskill-600 font-medium" 
+                  : "text-muted-foreground hover:text-outskill-500"
               )}
             >
-              <User size={18} className="mr-1" />
+              <User size={18} className="mr-1.5" />
               Profile
             </Link>
           </div>
 
-          {/* Theme Toggle Button */}
-          <div className="hidden sm:flex">
-            <ThemeToggle />
-          </div>
+          {/* Right Side Actions */}
+          <div className="flex items-center space-x-4">
+            {/* Theme Toggle Button */}
+            <div className="hidden sm:flex">
+              <ThemeToggle />
+            </div>
 
-          {/* Mobile Menu Button */}
-          <div className="md:hidden">
+            {/* Explore Button - Outskill Style */}
             <Button 
-              variant="ghost" 
+              variant="outskill" 
               size="sm"
-              className="p-1"
-              aria-label="Menu"
+              className="hidden sm:flex"
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="4" x2="20" y1="12" y2="12" />
-                <line x1="4" x2="20" y1="6" y2="6" />
-                <line x1="4" x2="20" y1="18" y2="18" />
-              </svg>
+              Explore Courses
             </Button>
+
+            {/* Mobile Menu Button */}
+            <div className="md:hidden">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="p-1"
+                aria-label="Menu"
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="4" x2="20" y1="12" y2="12" />
+                  <line x1="4" x2="20" y1="6" y2="6" />
+                  <line x1="4" x2="20" y1="18" y2="18" />
+                </svg>
+              </Button>
+            </div>
           </div>
         </nav>
       </div>

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -18,7 +19,7 @@ interface ProjectPreviewCardProps {
 
 const ProjectPreviewCard = ({ project }: ProjectPreviewCardProps) => {
   return (
-    <Card className="overflow-hidden h-full flex flex-col bg-factory-50 border border-factory-200 hover:border-factory-400 transition-all duration-300 hover:shadow-md hover:-translate-y-1 rounded-lg">
+    <Card className="overflow-hidden h-full flex flex-col bg-white border border-outskill-100 hover:border-outskill-300 transition-all duration-300 hover:shadow-md hover:-translate-y-1 rounded-lg">
       {/* Project Image */}
       <div className="h-52 overflow-hidden">
         <img 
@@ -31,21 +32,21 @@ const ProjectPreviewCard = ({ project }: ProjectPreviewCardProps) => {
       {/* Project Content */}
       <CardContent className="flex-grow p-6">
         {project.category && (
-          <span className="inline-block bg-factory-100 text-factory-600 text-xs font-semibold px-2 py-1 rounded-full mb-3">
+          <span className="inline-block bg-outskill-100 text-outskill-600 text-xs font-semibold px-2 py-1 rounded-full mb-3">
             {project.category}
           </span>
         )}
-        <h3 className="text-xl font-semibold text-factory-800 mb-2">{project.title}</h3>
-        <p className="text-factory-500">{project.description}</p>
+        <h3 className="text-xl font-semibold text-foreground mb-2">{project.title}</h3>
+        <p className="text-muted-foreground">{project.description}</p>
       </CardContent>
       
       {/* Project Footer */}
       <CardFooter className="p-6 pt-0">
         <Button 
           asChild 
-          variant="outline" 
+          variant="outskill" 
           size="sm" 
-          className="w-full text-factory-700 border-factory-300 hover:bg-factory-100"
+          className="w-full"
         >
           <Link to={`/projects/${project.slug}`}>
             View Project
@@ -57,4 +58,3 @@ const ProjectPreviewCard = ({ project }: ProjectPreviewCardProps) => {
 };
 
 export default ProjectPreviewCard;
-

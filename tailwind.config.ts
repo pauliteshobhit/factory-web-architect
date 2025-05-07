@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -71,18 +72,22 @@ export default {
           ring: "hsl(var(--sidebar-ring))",
         },
 
-        // ✅ Factory Palette — your custom design system
-        factory: {
-          50: "#f0f9ff",
-          100: "#e0f2fe",
-          200: "#bae6fd",
-          300: "#7dd3fc",
-          400: "#38bdf8",
-          500: "#0ea5e9", // Primary blue
-          600: "#0284c7",
-          700: "#0369a1",
-          800: "#075985",
-          900: "#0c4a6e",
+        // New Outskill-inspired palette
+        outskill: {
+          50: "#f4fcf2",
+          100: "#e8f9e6",
+          200: "#d3f2cf",
+          300: "#b0e5a8",
+          400: "#8bd179",
+          500: "#65ba52", // Brand Green
+          600: "#479338",
+          700: "#3b752f",
+          800: "#335c2a",
+          900: "#2c4c26",
+        },
+        dot: {
+          light: "#f8fbea", // Light background with dots
+          dark: "#202020",  // Dark background version
         },
       },
       borderRadius: {
@@ -104,9 +109,11 @@ export default {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
+      backgroundImage: {
+        'dot-pattern': "radial-gradient(#80c743 1px, transparent 1px)",
+      }
     },
   },
 
   plugins: [require("tailwindcss-animate")],
 } satisfies Config;
-
