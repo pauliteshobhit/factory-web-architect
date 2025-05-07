@@ -2,8 +2,9 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import clsx from 'clsx';
-import { Home, FolderCode, User, Moon } from 'lucide-react';
+import { Home, FolderCode, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import ThemeToggle from './ThemeToggle';
 
 const Navbar = () => {
   const [isSticky, setIsSticky] = useState(false);
@@ -18,11 +19,6 @@ const Navbar = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  // Placeholder function for theme toggle
-  const handleThemeToggle = () => {
-    console.log('Theme toggle clicked - functionality coming soon');
-  };
 
   // Helper to check if the link is active
   const isLinkActive = (path: string) => {
@@ -98,15 +94,7 @@ const Navbar = () => {
 
           {/* Theme Toggle Button */}
           <div className="hidden sm:flex">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={handleThemeToggle}
-              className="flex items-center"
-            >
-              <Moon size={18} className="mr-1" />
-              <span className="text-sm">Toggle Theme</span>
-            </Button>
+            <ThemeToggle />
           </div>
 
           {/* Mobile Menu Button */}

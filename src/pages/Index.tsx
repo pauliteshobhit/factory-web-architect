@@ -1,5 +1,7 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import Layout from '../components/Layout';
 import FeatureCard from '../components/FeatureCard';
 import ProjectPreviewCard from '../components/ProjectPreviewCard';
@@ -33,24 +35,78 @@ const Index = () => {
       category: "NLP"
     }
   ];
+  
+  const trustedOrganizations = [
+    "Stanford University", "MIT", "Google", "Microsoft", "Tesla", "Amazon"
+  ];
 
   return (
     <Layout>
-      {/* Hero Section */}
-      <section className="py-16 md:py-28">
-        <div className="max-w-5xl mx-auto text-center px-4">
-          <div className="relative">
-            <div className="absolute -top-20 -left-10 w-64 h-64 bg-primary/5 rounded-full filter blur-3xl"></div>
-            <div className="absolute top-10 -right-10 w-72 h-72 bg-blue-300/10 rounded-full filter blur-3xl"></div>
+      {/* Hero Section - Enhanced with animations and subtle details */}
+      <section className="py-16 md:py-28 relative overflow-hidden">
+        <div className="max-w-5xl mx-auto text-center px-4 relative z-10">
+          {/* Animated background shapes */}
+          <motion.div 
+            className="absolute -top-20 -left-10 w-64 h-64 bg-primary/5 rounded-full filter blur-3xl"
+            animate={{ 
+              x: [0, 10, 0],
+              y: [0, 15, 0],
+            }}
+            transition={{ 
+              repeat: Infinity, 
+              duration: 8, 
+              ease: "easeInOut" 
+            }}
+          />
+          <motion.div 
+            className="absolute top-10 -right-10 w-72 h-72 bg-blue-300/10 rounded-full filter blur-3xl"
+            animate={{ 
+              x: [0, -15, 0],
+              y: [0, 10, 0],
+            }}
+            transition={{ 
+              repeat: Infinity, 
+              duration: 10, 
+              ease: "easeInOut" 
+            }}
+          />
+          <motion.div 
+            className="absolute bottom-0 left-1/4 w-48 h-48 bg-factory-400/5 rounded-full filter blur-2xl"
+            animate={{ 
+              x: [0, 20, 0],
+              y: [0, -10, 0],
+            }}
+            transition={{ 
+              repeat: Infinity, 
+              duration: 12, 
+              ease: "easeInOut",
+              delay: 1
+            }}
+          />
 
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 text-foreground leading-tight relative z-10">
               Explore Real-World <span className="text-primary">AI Projects.</span>
             </h1>
-          </div>
-          <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-3xl mx-auto">
-            Learn by building. Download docs, watch walkthroughs, and get community feedback.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <p className="text-xl md:text-2xl text-muted-foreground mb-4 max-w-3xl mx-auto">
+              Learn by building. Download docs, watch walkthroughs, and get community feedback.
+            </p>
+            {/* New supporting subtitle */}
+            <p className="text-base md:text-lg text-muted-foreground mb-10 max-w-2xl mx-auto">
+              Join thousands of developers building the next generation of AI applications
+            </p>
+          </motion.div>
+
+          <motion.div 
+            className="flex flex-col sm:flex-row items-center justify-center gap-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
             <Button asChild size="lg" className="min-w-[180px] h-12 text-base">
               <Link to="/projects">
                 Explore Projects <ArrowRight className="ml-1.5" />
@@ -61,11 +117,33 @@ const Index = () => {
                 Sign Up
               </Link>
             </Button>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Trusted By Section - NEW */}
+      <section className="py-12 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <h2 className="text-center text-xl md:text-2xl font-medium text-muted-foreground mb-8">
+            Trusted by learners from top schools and startups
+          </h2>
+          <div className="flex flex-wrap justify-center gap-8 items-center">
+            {trustedOrganizations.map((org, index) => (
+              <motion.div 
+                key={index}
+                className="h-12 w-32 bg-muted/50 rounded flex items-center justify-center text-muted-foreground/70 font-medium"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                {org}
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* 🔁 Featured Projects Section (Moved Up) */}
+      {/* 🔁 Featured Projects Section */}
       <section className="py-16 md:py-24 bg-gradient-to-b from-background to-secondary/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-14">
