@@ -1,15 +1,14 @@
 
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import clsx from 'clsx';
+import { Home, FolderCode, User, Moon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import MobileMenu from './MobileMenu';
-import { Home, FolderCode, User, LogIn, Menu } from 'lucide-react';
 
 const Navbar = () => {
   const [isSticky, setIsSticky] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Placeholder for auth state
-
+  const location = useLocation();
+  
   // Handle scroll behavior for sticky navbar
   useEffect(() => {
     const handleScroll = () => {
@@ -20,25 +19,26 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
+  // Placeholder function for theme toggle
+  const handleThemeToggle = () => {
+    console.log('Theme toggle clicked - functionality coming soon');
   };
 
-  const handleLogInOut = () => {
-    // Placeholder for authentication logic
-    setIsLoggedIn(!isLoggedIn);
+  // Helper to check if the link is active
+  const isLinkActive = (path: string) => {
+    return location.pathname === path;
   };
 
   return (
     <header 
-      className={`
-        w-full py-4 z-50 bg-background transition-all duration-200
-        ${isSticky ? 'sticky top-0 shadow-md' : ''}
-      `}
+      className={clsx(
+        'w-full py-4 z-50 bg-background transition-all duration-200',
+        isSticky && 'sticky top-0 shadow-md'
+      )}
     >
       <div className="container mx-auto px-4 sm:px-6 md:px-8">
         <nav className="flex items-center justify-between">
-          {/* Logo and Site Name */}
+          {/* Logo and Brand Name */}
           <div className="flex items-center">
             <Link 
               to="/" 
@@ -50,47 +50,62 @@ const Navbar = () => {
                 alt="theAIfactory Logo" 
                 className="h-8 w-auto dark:invert mr-2"
               />
-              <span className="hidden sm:inline text-xl md:text-2xl font-bold text-factory-700 hover:text-factory-600 transition-colors">
+              <span className="hidden sm:inline text-xl md:text-2xl font-bold text-foreground transition-colors">
                 theAIfactory
               </span>
             </Link>
           </div>
 
-          {/* Desktop Navigation */}
+          {/* Desktop Navigation Links */}
           <div className="hidden md:flex items-center space-x-6">
             <Link 
               to="/" 
-              className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              className={clsx(
+                "flex items-center text-sm font-medium transition-colors",
+                isLinkActive('/') 
+                  ? "text-primary font-semibold border-b-2 border-primary pb-1" 
+                  : "text-muted-foreground hover:text-primary"
+              )}
             >
               <Home size={18} className="mr-1" />
               Home
             </Link>
             <Link 
               to="/projects" 
-              className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              className={clsx(
+                "flex items-center text-sm font-medium transition-colors",
+                isLinkActive('/projects') 
+                  ? "text-primary font-semibold border-b-2 border-primary pb-1" 
+                  : "text-muted-foreground hover:text-primary"
+              )}
             >
               <FolderCode size={18} className="mr-1" />
               Projects
             </Link>
             <Link 
               to="/profile" 
-              className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              className={clsx(
+                "flex items-center text-sm font-medium transition-colors",
+                isLinkActive('/profile') 
+                  ? "text-primary font-semibold border-b-2 border-primary pb-1" 
+                  : "text-muted-foreground hover:text-primary"
+              )}
             >
               <User size={18} className="mr-1" />
               Profile
             </Link>
           </div>
 
-          {/* Auth Button (Desktop) */}
-          <div className="hidden md:block">
+          {/* Theme Toggle Button */}
+          <div className="hidden sm:flex">
             <Button 
-              variant="outline" 
+              variant="ghost" 
               size="sm" 
-              onClick={handleLogInOut}
+              onClick={handleThemeToggle}
               className="flex items-center"
             >
-              <LogIn size={18} className="mr-1" />
-              {isLoggedIn ? 'Logout' : 'Login'}
+              <Moon size={18} className="mr-1" />
+              <span className="text-sm">Toggle Theme</span>
             </Button>
           </div>
 
@@ -99,22 +114,18 @@ const Navbar = () => {
             <Button 
               variant="ghost" 
               size="sm"
-              onClick={toggleMobileMenu} 
-              aria-label="Toggle Menu"
+              className="p-1"
+              aria-label="Menu"
             >
-              <Menu size={24} />
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="4" x2="20" y1="12" y2="12" />
+                <line x1="4" x2="20" y1="6" y2="6" />
+                <line x1="4" x2="20" y1="18" y2="18" />
+              </svg>
             </Button>
           </div>
         </nav>
       </div>
-
-      {/* Mobile Navigation Menu */}
-      <MobileMenu 
-        isOpen={isMobileMenuOpen} 
-        onClose={() => setIsMobileMenuOpen(false)}
-        isLoggedIn={isLoggedIn}
-        onLogInOut={handleLogInOut}
-      />
     </header>
   );
 };
