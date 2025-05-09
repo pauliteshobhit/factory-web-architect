@@ -1,14 +1,19 @@
-
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Layout from '../components/Layout';
 import FeatureCard from '../components/FeatureCard';
 import ProjectPreviewCard from '../components/ProjectPreviewCard';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, FileVideo, FileText, MessageSquare } from 'lucide-react';
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/components/ui/use-toast";
 
 const Index = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
   const featuredProjects = [
     {
       id: 1,
@@ -39,6 +44,41 @@ const Index = () => {
   const trustedOrganizations = [
     "Stanford University", "MIT", "Google", "Microsoft", "Tesla", "Amazon"
   ];
+
+  const handleViewProject = () => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to view this project.",
+        variant: "default",
+      });
+      navigate('/login');
+    } else {
+      navigate(`/projects/${featuredProjects[0].slug}`);
+    }
+  };
+
+  const handleAuthAction = (action: 'explore' | 'get-started') => {
+    if (user) {
+      // User is logged in, navigate to appropriate page
+      switch (action) {
+        case 'explore':
+          navigate('/projects');
+          break;
+        case 'get-started':
+          navigate('/projects');
+          break;
+      }
+    } else {
+      // User is not logged in, show toast and navigate to login
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to access this feature.",
+        variant: "default",
+      });
+      navigate('/login');
+    }
+  };
 
   return (
     <Layout>
@@ -107,15 +147,20 @@ const Index = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <Button asChild size="lg" className="min-w-[180px] h-12 text-base">
-              <Link to="/projects">
-                Explore Projects <ArrowRight className="ml-1.5" />
-              </Link>
+            <Button 
+              size="lg" 
+              className="min-w-[180px] h-12 text-base"
+              onClick={() => handleAuthAction('explore')}
+            >
+              Explore Projects <ArrowRight className="ml-1.5" />
             </Button>
-            <Button asChild variant="outline" size="lg" className="min-w-[180px] h-12 text-base">
-              <Link to="/signup">
-                Sign Up
-              </Link>
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="min-w-[180px] h-12 text-base"
+              onClick={handleViewProject}
+            >
+              View Project
             </Button>
           </motion.div>
         </div>
@@ -160,8 +205,13 @@ const Index = () => {
           </div>
 
           <div className="mt-12 text-center">
-            <Button asChild variant="outline" size="lg" className="min-w-[180px]">
-              <Link to="/projects">View All Projects</Link>
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="min-w-[180px]"
+              onClick={() => handleAuthAction('explore')}
+            >
+              View All Projects
             </Button>
           </div>
         </div>
@@ -207,10 +257,12 @@ const Index = () => {
             <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto relative z-10">
               Join thousands of developers building the next generation of AI applications
             </p>
-            <Button asChild size="lg" className="min-w-[180px] relative z-10">
-              <Link to="/signup">
-                Get Started Today
-              </Link>
+            <Button 
+              size="lg" 
+              className="min-w-[180px] relative z-10"
+              onClick={() => handleAuthAction('get-started')}
+            >
+              {user ? 'Explore Projects' : 'Get Started Today'}
             </Button>
           </div>
         </div>

@@ -1,14 +1,21 @@
-
 import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
-import { Home, FolderCode, User } from 'lucide-react';
+import { Home, FolderCode, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ThemeToggle from './ThemeToggle';
+import { supabase } from '@/lib/supabaseClient';
+import { useToast } from '@/components/ui/use-toast';
+import type { Session } from '@supabase/supabase-js';
+import { useAuth } from "@/hooks/useAuth";
 
 const Navbar = () => {
   const [isSticky, setIsSticky] = useState(false);
+  const [session, setSession] = useState<Session | null>(null);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const { user, isAdmin } = useAuth();
   
   // Handle scroll behavior for sticky navbar
   useEffect(() => {
@@ -19,6 +26,43 @@ const Navbar = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Check for session on load and subscribe to auth changes
+  useEffect(() => {
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    // Subscribe to auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Handle logout
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      toast({
+        title: 'Success',
+        description: 'You have been logged out successfully.',
+      });
+      navigate('/');
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to logout',
+      });
+    }
+  };
 
   // Helper to check if the link is active
   const isLinkActive = (path: string) => {
@@ -78,18 +122,33 @@ const Navbar = () => {
               <FolderCode size={18} className="mr-1.5" />
               Projects
             </Link>
-            <Link 
-              to="/profile" 
-              className={clsx(
-                "flex items-center text-sm font-medium transition-colors",
-                isLinkActive('/profile') 
-                  ? "text-outskill-600 font-medium" 
-                  : "text-muted-foreground hover:text-outskill-500"
-              )}
-            >
-              <User size={18} className="mr-1.5" />
-              Profile
-            </Link>
+            {session && (
+              <Link 
+                to="/profile" 
+                className={clsx(
+                  "flex items-center text-sm font-medium transition-colors",
+                  isLinkActive('/profile') 
+                    ? "text-outskill-600 font-medium" 
+                    : "text-muted-foreground hover:text-outskill-500"
+                )}
+              >
+                <User size={18} className="mr-1.5" />
+                Profile
+              </Link>
+            )}
+            {isAdmin && (
+              <Link 
+                to="/admin/upload" 
+                className={clsx(
+                  "flex items-center text-sm font-medium transition-colors",
+                  isLinkActive('/admin/upload') 
+                    ? "text-outskill-600 font-medium" 
+                    : "text-muted-foreground hover:text-outskill-500"
+                )}
+              >
+                Upload Project
+              </Link>
+            )}
           </div>
 
           {/* Right Side Actions */}
@@ -99,14 +158,27 @@ const Navbar = () => {
               <ThemeToggle />
             </div>
 
-            {/* Explore Button - Outskill Style */}
-            <Button 
-              variant="outskill" 
-              size="sm"
-              className="hidden sm:flex"
-            >
-              Explore Courses
-            </Button>
+            {/* Auth Buttons */}
+            {session ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleLogout}
+                className="flex items-center gap-2"
+              >
+                <LogOut size={18} />
+                <span className="hidden sm:inline">Logout</span>
+              </Button>
+            ) : (
+              <div className="flex items-center space-x-2">
+                <Button variant="ghost" asChild>
+                  <Link to="/login">Login</Link>
+                </Button>
+                <Button asChild>
+                  <Link to="/signup">Sign Up</Link>
+                </Button>
+              </div>
+            )}
 
             {/* Mobile Menu Button */}
             <div className="md:hidden">
