@@ -124,6 +124,71 @@ export function ProjectInsertTest() {
     }
   };
 
+  // Add test project function
+  const insertTestProject = async () => {
+    const testProject = {
+      title: "Smart Dashboard",
+      description: "A powerful analytics dashboard that provides real-time insights and customizable widgets for data visualization.",
+      slug: "smart-dashboard",
+      category: "Data Analysis",
+      image_url: "https://picsum.photos/800/400",
+      video_url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      documentation_url: "https://docs.example.com/smart-dashboard",
+      github_url: "https://github.com/example/smart-dashboard"
+    };
+
+    try {
+      setLoading(true);
+      setError(null);
+      
+      console.log('🔍 Inserting test project:', testProject);
+      
+      const { data, error } = await supabase
+        .from('projects')
+        .insert(testProject)
+        .select()
+        .single();
+
+      console.log('📦 Insert result:', { data, error });
+
+      if (error) {
+        if (error.code === '23505') { // Unique violation
+          throw new Error('A project with this slug already exists');
+        }
+        throw error;
+      }
+
+      toast({
+        title: 'Success!',
+        description: 'Test project created successfully',
+      });
+
+      // Reset form
+      setProjectData({
+        title: '',
+        description: '',
+        slug: '',
+        category: '',
+        image_url: '',
+        video_url: '',
+        documentation_url: '',
+        github_url: '',
+      });
+
+    } catch (err) {
+      console.error('❌ Error inserting test project:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create test project';
+      setError(errorMessage);
+      toast({
+        title: 'Error',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="container mx-auto p-6">
       <Card>
@@ -131,6 +196,17 @@ export function ProjectInsertTest() {
           <CardTitle>Test Project Insertion</CardTitle>
         </CardHeader>
         <CardContent>
+          {/* Add test project button */}
+          <div className="mb-6">
+            <Button
+              onClick={insertTestProject}
+              disabled={loading}
+              className="w-full"
+            >
+              {loading ? 'Creating...' : 'Create Test Smart Dashboard Project'}
+            </Button>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <Label htmlFor="title">Title *</Label>

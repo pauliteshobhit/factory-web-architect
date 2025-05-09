@@ -3,73 +3,55 @@ import Layout from '../components/Layout';
 import ProjectPreviewCard from '../components/ProjectPreviewCard';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
-
-// Sample project data (in a real app, this would come from an API)
-const projectsData = [
-  {
-    id: 1,
-    title: "AI Image Generator",
-    description: "Create stunning AI-generated artwork with just a text prompt",
-    imageUrl: "https://images.unsplash.com/photo-1500673922987-e212871fec22",
-    slug: "ai-image-generator",
-    category: "Image AI"
-  },
-  {
-    id: 2,
-    title: "Smart Dashboard",
-    description: "Data visualization dashboard with React and real-time updates",
-    imageUrl: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d",
-    slug: "smart-dashboard",
-    category: "Analytics"
-  },
-  {
-    id: 3,
-    title: "ChatBot Interface",
-    description: "Modern conversational UI with natural language processing",
-    imageUrl: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b",
-    slug: "chatbot-interface",
-    category: "NLP"
-  },
-  {
-    id: 4,
-    title: "Personalized Recommendation Engine",
-    description: "AI-driven content recommendations based on user preferences",
-    imageUrl: "https://images.unsplash.com/photo-1451187580459-43490279c0fa",
-    slug: "recommendation-engine",
-    category: "Recommender Systems"
-  },
-  {
-    id: 5,
-    title: "Computer Vision Toolkit",
-    description: "Tools for object detection, recognition and classification",
-    imageUrl: "https://images.unsplash.com/photo-1507146153580-69a1fe6d8aa1",
-    slug: "computer-vision-toolkit",
-    category: "Image AI"
-  },
-  {
-    id: 6,
-    title: "Speech Analytics Platform",
-    description: "Real-time speech recognition and sentiment analysis tools",
-    imageUrl: "https://images.unsplash.com/photo-1557436932-b8ea747c1d3b",
-    slug: "speech-analytics",
-    category: "NLP"
-  }
-];
-
-// Extract unique categories
-const allCategories = ["All", ...new Set(projectsData.map(project => project.category))];
+import { supabase } from '@/lib/supabaseClient';
+import { useToast } from '@/components/ui/use-toast';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const Projects = () => {
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [filteredProjects, setFilteredProjects] = useState(projectsData);
+  const { toast } = useToast();
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  // Fetch projects from Supabase
   useEffect(() => {
-    if (selectedCategory === "All") {
-      setFilteredProjects(projectsData);
-    } else {
-      setFilteredProjects(projectsData.filter(project => project.category === selectedCategory));
-    }
-  }, [selectedCategory]);
+    const fetchProjects = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const { data, error } = await supabase
+          .from('projects')
+          .select('id, title, description, slug, category, image_url, created_at')
+          .order('created_at', { ascending: false });
+        if (error) {
+          toast({ title: '❌ Failed to fetch projects', description: error.message, variant: 'destructive' });
+          setError(error.message);
+          console.error('Supabase fetch error:', error);
+          setProjects([]);
+          return;
+        }
+        setProjects(data || []);
+        console.log('✅ Loaded projects:', data?.length);
+      } catch (err) {
+        toast({ title: '❌ Unexpected error', description: 'Something went wrong while loading projects', variant: 'destructive' });
+        setError('Unexpected error');
+        console.error('Unexpected fetch error:', err);
+        setProjects([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProjects();
+  }, [toast]);
+
+  // Extract unique categories from loaded projects
+  const allCategories = ['All', ...Array.from(new Set(projects.map((project) => project.category)))];
+
+  // Filter projects by category
+  const filteredProjects = selectedCategory === 'All'
+    ? projects
+    : projects.filter((project) => project.category === selectedCategory);
 
   return (
     <Layout>
@@ -100,7 +82,7 @@ const Projects = () => {
             <Button
               key={category}
               onClick={() => setSelectedCategory(category)}
-              variant={selectedCategory === category ? "default" : "outline"}
+              variant={selectedCategory === category ? 'default' : 'outline'}
               size="sm"
               className="min-w-[100px]"
             >
@@ -110,13 +92,30 @@ const Projects = () => {
         </div>
 
         {/* Projects Grid */}
-        <motion.div 
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-          layout
-          transition={{ type: "spring", damping: 25, stiffness: 120 }}
-        >
-          {filteredProjects.length > 0 ? (
-            filteredProjects.map(project => (
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="h-64 w-full rounded-xl" />
+            ))}
+          </div>
+        ) : error ? (
+          <div className="col-span-full text-center py-16">
+            <p className="text-xl text-destructive">{error}</p>
+            <Button 
+              onClick={() => window.location.reload()} 
+              variant="outline"
+              className="mt-4"
+            >
+              Retry
+            </Button>
+          </div>
+        ) : filteredProjects.length > 0 ? (
+          <motion.div 
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            layout
+            transition={{ type: 'spring', damping: 25, stiffness: 120 }}
+          >
+            {filteredProjects.map((project) => (
               <motion.div
                 key={project.id}
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -127,20 +126,20 @@ const Projects = () => {
               >
                 <ProjectPreviewCard project={project} />
               </motion.div>
-            ))
-          ) : (
-            <div className="col-span-full text-center py-16">
-              <p className="text-xl text-muted-foreground">No projects found in this category</p>
-              <Button 
-                onClick={() => setSelectedCategory("All")} 
-                variant="outline"
-                className="mt-4"
-              >
-                View all projects
-              </Button>
-            </div>
-          )}
-        </motion.div>
+            ))}
+          </motion.div>
+        ) : (
+          <div className="col-span-full text-center py-16">
+            <p className="text-xl text-muted-foreground">No projects found in this category</p>
+            <Button 
+              onClick={() => setSelectedCategory('All')} 
+              variant="outline"
+              className="mt-4"
+            >
+              View all projects
+            </Button>
+          </div>
+        )}
       </div>
     </Layout>
   );

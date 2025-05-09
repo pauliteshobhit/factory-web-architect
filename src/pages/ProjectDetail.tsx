@@ -8,7 +8,9 @@ import { supabase } from "@/lib/supabaseClient";
 import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/use-toast";
 
 interface Project {
   id: string;
@@ -25,34 +27,74 @@ interface Project {
 export default function ProjectDetail() {
   const { slug } = useParams();
   const { user } = useAuth();
+  const { toast } = useToast();
   const navigate = useNavigate();
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [debugMode, setDebugMode] = useState(false);
+  const [debugSlug, setDebugSlug] = useState(slug || '');
 
   useEffect(() => {
-    async function fetchProject() {
+    const fetchProject = async () => {
       try {
-        setLoading(true);
         const { data, error } = await supabase
-          .from('projects')
-          .select('*')
-          .eq('slug', slug)
+          .from("projects")
+          .select("*")
+          .eq("slug", slug)
           .single();
 
-        if (error) throw error;
+        if (error || !data) {
+          toast({ title: "Project not found", description: slug, variant: "destructive" });
+          console.error("❌ Project fetch error:", error || "No data");
+          setProject(null);
+          return;
+        }
+
         setProject(data);
+        console.log("✅ Project fetched:", data.title);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch project');
+        console.error("❌ Unexpected error fetching project:", err);
+        toast({ title: "Unexpected error", description: String(err), variant: "destructive" });
       } finally {
         setLoading(false);
       }
-    }
+    };
+    fetchProject();
+  }, [slug, toast]);
 
-    if (slug) {
-      fetchProject();
+  // Debug mode toggle (hidden in production)
+  const toggleDebugMode = () => {
+    setDebugMode(!debugMode);
+  };
+
+  // Debug fetch function
+  const handleDebugFetch = async () => {
+    if (!debugSlug) return;
+    
+    try {
+      setLoading(true);
+      setError(null);
+      
+      console.log('🔍 Debug: Fetching project with slug:', debugSlug);
+      
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('slug', debugSlug)
+        .single();
+
+      console.log('📦 Debug: Fetch result:', { data, error });
+
+      if (error) throw error;
+      setProject(data);
+    } catch (err) {
+      console.error('❌ Debug: Error fetching project:', err);
+      setError(err instanceof Error ? err.message : 'Failed to fetch project');
+    } finally {
+      setLoading(false);
     }
-  }, [slug]);
+  };
 
   // Show loading state
   if (loading) {
@@ -77,17 +119,65 @@ export default function ProjectDetail() {
       <Layout>
         <div className="container mx-auto px-4 py-16">
           <div className="max-w-2xl mx-auto">
-            <Alert variant="destructive">
+            <Alert variant="destructive" className="mb-4">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>{error}</AlertDescription>
             </Alert>
-            <Button 
-              onClick={() => navigate('/projects')}
-              className="mt-4"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Projects
-            </Button>
+
+            {/* Debug Mode (hidden in production) */}
+            {import.meta.env.DEV && (
+              <div className="mt-8 p-4 border rounded-lg">
+                <div className="flex items-center gap-2 mb-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={toggleDebugMode}
+                  >
+                    {debugMode ? 'Hide Debug' : 'Show Debug'}
+                  </Button>
+                  {debugMode && (
+                    <div className="flex-1 flex gap-2">
+                      <Input
+                        value={debugSlug}
+                        onChange={(e) => setDebugSlug(e.target.value)}
+                        placeholder="Enter project slug"
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleDebugFetch}
+                      >
+                        <Search className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+                {debugMode && project && (
+                  <pre className="mt-4 p-4 bg-muted rounded text-xs overflow-auto">
+                    {JSON.stringify(project, null, 2)}
+                  </pre>
+                )}
+              </div>
+            )}
+
+            <div className="flex flex-col sm:flex-row gap-4 mt-4">
+              <Button 
+                onClick={() => navigate('/projects')}
+                className="min-w-[180px]"
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Projects
+              </Button>
+              {!user && (
+                <Button 
+                  variant="outline"
+                  onClick={() => navigate('/login')}
+                  className="min-w-[180px]"
+                >
+                  Log In
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </Layout>
@@ -98,20 +188,14 @@ export default function ProjectDetail() {
   if (!project) {
     return (
       <Layout>
-        <div className="container mx-auto px-4 py-16">
-          <div className="max-w-2xl mx-auto text-center">
-            <h1 className="text-4xl font-bold mb-4">Project Not Found</h1>
-            <p className="text-muted-foreground mb-8">
-              The project you're looking for doesn't exist or has been removed.
-            </p>
-            <Button 
-              onClick={() => navigate('/projects')}
-              className="min-w-[180px]"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Projects
-            </Button>
-          </div>
+        <div className="container mx-auto px-4 py-16 text-center">
+          <h1 className="text-4xl font-bold mb-4">Project Not Found</h1>
+          <p className="text-muted-foreground mb-8">
+            The project you're looking for doesn't exist or has been removed.
+          </p>
+          <Button onClick={() => navigate('/projects')} className="min-w-[180px]">
+            Back to Projects
+          </Button>
         </div>
       </Layout>
     );
@@ -190,12 +274,9 @@ export default function ProjectDetail() {
             
             {/* Video Section */}
             {project.video_url && (
-              <div className="mt-8">
-                <h3 className="text-lg font-semibold mb-4">Project Demo</h3>
-                <YouTubeEmbed 
-                  url={project.video_url}
-                  title={`${project.title} - Demo Video`}
-                />
+              <div className="mt-10">
+                <h3 className="text-lg font-semibold mb-2">🎥 Demo Video</h3>
+                <YouTubeEmbed url={project.video_url} />
               </div>
             )}
           </div>

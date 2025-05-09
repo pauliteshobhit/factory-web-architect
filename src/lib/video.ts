@@ -3,12 +3,14 @@
  * @param url YouTube URL (watch, embed, or youtu.be format)
  * @returns YouTube video ID or null if invalid
  */
-export function getYouTubeVideoId(url: string | null | undefined): string | null {
-  if (!url) return null;
-  
-  const regex = /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-  const match = url.match(regex);
-  return match ? match[1] : null;
+export function getYouTubeVideoId(url: string): string | null {
+  try {
+    const regex = /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([\w\-]+)/;
+    const match = url.match(regex);
+    return match ? match[1] : null;
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -16,8 +18,8 @@ export function getYouTubeVideoId(url: string | null | undefined): string | null
  * @param url YouTube URL
  * @returns YouTube embed URL or null if invalid
  */
-export function getYouTubeEmbedUrl(url: string | null | undefined): string | null {
-  const id = getYouTubeVideoId(url);
+export function getYouTubeEmbedUrl(videoUrl: string): string | null {
+  const id = getYouTubeVideoId(videoUrl);
   return id ? `https://www.youtube.com/embed/${id}` : null;
 }
 
@@ -26,6 +28,6 @@ export function getYouTubeEmbedUrl(url: string | null | undefined): string | nul
  * @param url URL to validate
  * @returns boolean indicating if URL is valid
  */
-export function isValidYouTubeUrl(url: string | null | undefined): boolean {
+export function isValidYouTubeUrl(url: string): boolean {
   return !!getYouTubeVideoId(url);
 } 

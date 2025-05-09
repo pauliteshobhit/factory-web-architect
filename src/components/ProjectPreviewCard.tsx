@@ -7,7 +7,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabaseClient";
 
 interface Project {
-  id: number;
+  id: string; // UUID
   title: string;
   description: string;
   imageUrl: string;
@@ -39,12 +39,15 @@ const ProjectPreviewCard = ({ project }: ProjectPreviewCardProps) => {
       const { error } = await supabase
         .from('project_clicks')
         .insert({
-          user_id: user?.id,
+          user_id: user.id,
+          user_email: user.email,
           project_id: project.id,
+          source_slug: project.slug,
+          created_at: new Date().toISOString(),
         });
 
       if (error) {
-        console.error('Failed to log project click:', error);
+        console.error('❌ Failed to log project click:', error);
         toast({
           title: "Error",
           description: "Failed to track project view. Please try again.",
@@ -52,7 +55,12 @@ const ProjectPreviewCard = ({ project }: ProjectPreviewCardProps) => {
         });
       }
     } catch (err) {
-      console.error('Error viewing project:', err);
+      console.error('❌ Error viewing project:', err);
+      toast({
+        title: "Error",
+        description: "Unexpected error tracking project view.",
+        variant: "destructive",
+      });
     }
 
     navigate(`/projects/${project.slug}`);

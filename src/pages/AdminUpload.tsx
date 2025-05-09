@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabaseClient";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -49,14 +49,15 @@ const categories = [
 
 const formSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
+  slug: z.string().min(3, "Slug must be at least 3 characters"),
   description: z.string().min(10, "Description must be at least 10 characters"),
   category: z.enum(categories, {
     required_error: "Please select a category",
   }),
-  coverImageUrl: z.string().url("Must be a valid URL").optional().or(z.literal("")),
-  videoUrl: z.string().url("Must be a valid URL").optional().or(z.literal("")),
-  docsUrl: z.string().url("Must be a valid URL").optional().or(z.literal("")),
-  githubUrl: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  image_url: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  video_url: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  documentation_url: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  github_url: z.string().url("Must be a valid URL").optional().or(z.literal("")),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -72,12 +73,13 @@ export default function AdminUpload() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
+      slug: "",
       description: "",
       category: undefined,
-      coverImageUrl: "",
-      videoUrl: "",
-      docsUrl: "",
-      githubUrl: "",
+      image_url: "",
+      video_url: "",
+      documentation_url: "",
+      github_url: "",
     },
   });
 
@@ -92,8 +94,6 @@ export default function AdminUpload() {
 
       const { error } = await supabase.from("projects").insert({
         ...data,
-        user_id: user.id,
-        email: user.email,
         created_at: new Date().toISOString(),
       });
 
@@ -120,7 +120,7 @@ export default function AdminUpload() {
 
   const handleImageUrlChange = (url: string) => {
     setPreviewImage(url);
-    form.setValue("coverImageUrl", url);
+    form.setValue("image_url", url);
   };
 
   if (loading || roleLoading) {
@@ -185,6 +185,23 @@ export default function AdminUpload() {
 
               <FormField
                 control={form.control}
+                name="slug"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Slug</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter project slug (e.g. smart-dashboard)" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      Unique identifier for the project URL (lowercase, hyphens allowed)
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
                 name="description"
                 render={({ field }) => (
                   <FormItem>
@@ -228,7 +245,7 @@ export default function AdminUpload() {
 
               <FormField
                 control={form.control}
-                name="coverImageUrl"
+                name="image_url"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Cover Image URL</FormLabel>
@@ -261,7 +278,7 @@ export default function AdminUpload() {
 
               <FormField
                 control={form.control}
-                name="videoUrl"
+                name="video_url"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Video URL</FormLabel>
@@ -278,7 +295,7 @@ export default function AdminUpload() {
 
               <FormField
                 control={form.control}
-                name="docsUrl"
+                name="documentation_url"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Documentation URL</FormLabel>
@@ -295,7 +312,7 @@ export default function AdminUpload() {
 
               <FormField
                 control={form.control}
-                name="githubUrl"
+                name="github_url"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>GitHub URL</FormLabel>
